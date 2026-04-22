@@ -1,8 +1,7 @@
 # Monte-Charge Synergy Hub
 
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Business Status](https://img.shields.io/badge/Status-Proprietary-red?style=for-the-badge)](https://joshsegatt.com)
+[![Location](https://img.shields.io/badge/HQ-Geneva%2C%20CH-orange?style=for-the-badge)](https://batimove.ch)
 
 **The Elite Digital Instrument for Vertical Logistics in Geneva.**
 
@@ -13,22 +12,36 @@
   <p><i>Building the future of urban elevation through technology and high-fidelity design.</i></p>
 </div>
 
+---
+
+> [!CAUTION]
+> **PROPRIETARY SOFTWARE & SOURCE CODE**
+>
+> This repository is a **Business Showcase** for BatiMove Sàrl. All source code, assets, and documentation are strictly **PROPRIETARY**. 
+> **Cloning, reproduction, or redistribution is strictly prohibited.**
+
+---
+
 <details>
-<summary>🇫🇷 Traduire en Français</summary>
+<summary>🇫🇷 Traduire en Français (Note Légale)</summary>
 
 ### Monte-Charge Synergy Hub
 
 **L'Instrument Digital d'Élite pour la Logistique Verticale à Genève.**
 
-*Précis. Sécurisé. Suisse.* - Construire l'avenir de l'élévation urbaine grâce à la technologie et au design de haute fidélité.
+> [!CAUTION]
+> **LOGICIEL ET CODE SOURCE PROPRIÉTAIRES**
+>
+> Ce dépôt ést une **vitrine commerciale** pour BatiMove Sàrl. L'ensemble du code source, des actifs et de la documentation est strictement **PROPRIÉTAIRE**.
+> **Le clonage, la reproduction ou la redistribution sont strictement interdits.**
 
 </details>
 
 ---
 
-## 🏛️ Ecosystem Overview
+## 🏛️ Project Vision
 
-Monte-Charge is a high-performance logistics platform designed for **BatiMove Sàrl**. It transforms complex vertical lifting operations into a fluid, visual, and highly secure digital experience.
+Monte-Charge is a high-performance logistics platform designed for **BatiMove Sàrl**. It transforms complex vertical lifting operations into a fluid, visual, and highly secure digital experience. This repository serves as a technical demonstration of the platform's capabilities.
 
 ### Key Pillars
 
@@ -36,42 +49,12 @@ Monte-Charge is a high-performance logistics platform designed for **BatiMove S�
 - **60FPS Precision**: Engineered for absolute smoothness. Utilizing hardware acceleration (GPU) and state isolation to ensure a jank-free 60FPS experience across all devices.
 - **Legal Compliance**: Fully integrated legal frameworks and security standards aligned with Canton de Genève regulations (UID: CHE-143.091.230).
 
-## 🛠️ Technology Stack
+## 🛠️ High-End Tech Stack
 
 - **Core**: React 19 + TypeScript
 - **Motion**: Framer Motion (Optimized for 60FPS transitions)
 - **Scroll Engine**: Lenis Smooth Scroll (Configured for Swiss mechanical precision)
 - **Styling**: Tailwind CSS (Sophisticated "Monochrome Obsidian" aesthetic)
-- **Environment**: Vite (Ultra-fast HMR and building)
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18+)
-- NPM or PNPM
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/monte-charge-synergy-hub.git
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Build for production**
-   ```bash
-   npm run build
-   ```
 
 ---
 
@@ -84,17 +67,17 @@ The interface follows a **"Senior Figma"** standard:
 
 ---
 
-## 🤝 Credits
+## 🤝 Contact & Business Inquiries
 
-Developed with precision and passion.
+For partnership opportunities or technical inquiries regarding BatiMove Sàrl infrastructure, please contact:
 
-**Made with ❤️ by [joshsegatt](https://joshsegatt.com)**
+**[joshsegatt](https://joshsegatt.com)**
 
 ---
 
 <details>
 <summary>⚖️ Legal & Copyright</summary>
 
-© 2026 Monte-Charge / BatiMove Sàrl. All rights reserved. Precise. Secure. Swiss.
+© 2026 Monte-Charge / BatiMove Sàrl. All rights reserved. Intellectual property of BatiMove Sàrl (CHE-143.091.230).
 
 </details>

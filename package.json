@@ -2,6 +2,7 @@
   "name": "monte-charge-synergy-hub",
   "private": true,
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "description": "Elite vertical logistics platform for Geneva - Precise. Secure. Swiss.",
   "type": "module",
   "scripts": {
