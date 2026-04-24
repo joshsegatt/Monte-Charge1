@@ -549,7 +549,7 @@ export default function App() {
               <div className="container mx-auto px-6 relative z-20 text-center">
                 <RotatingCinematicText />
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="text-steel max-w-2xl mx-auto text-lg md:text-xl mb-12 font-medium opacity-80 leading-relaxed mt-8">
-                  Expertise suisse certifiée SUVA pour vos transferts complexes e infrastructures sensibles à travers tout le bassin genevois.
+                  Expertise suisse de haute précision pour vos transferts complexes e infrastructures sensibles à travers tout le bassin genevois.
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }} className="flex flex-col sm:flex-row items-center justify-center gap-8">
                   {/* Primary Button: Démarrer Mission */}
@@ -587,10 +587,10 @@ export default function App() {
 
             <motion.section id="expertise" initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1 }} className="py-12 lg:py-24 px-4 md:px-8 lg:px-12 relative flex items-center">
               <div className="max-w-6xl mx-auto w-full">
-                <SectionHeader title="Expertise Genevoise" sub="Leader du levage vertical à Genève. Nous transformons les défis logistiques complexes en manœuvres de précision certifiées SUVA." mono="Standard d'Excellence" />
+                <SectionHeader title="Expertise Genevoise" sub="Leader du levage vertical à Genève. Nous transformons les défis logistiques complexes en manœuvres de précision de haut niveau." mono="Standard d'Excellence" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
                   <ExpertiseCard icon={Settings} title="Précision Laser" desc="Manutention au millimètre pour vos biens les plus précieux. Une maîtrise technique absolue du monte-meubles." delay={0.1} />
-                  <ExpertiseCard icon={ShieldCheck} title="Sécurité SUVA" desc="Conformité totale aux normes suisses de sécurité. Protection intégrale des infrastructures et des tiers." delay={0.2} />
+                  <ExpertiseCard icon={ShieldCheck} title="Haute Sécurité" desc="Conformité totale aux normes suisses de sécurité. Protection intégrale des infrastructures et des tiers." delay={0.2} />
                   <ExpertiseCard icon={Clock} title="Disponibilité 24/7" desc="Réactivité stratégique pour les urgences et planification sur-mesure pour vos projets industriels." delay={0.3} />
                 </div>
               </div>
@@ -642,7 +642,7 @@ export default function App() {
                   {[
                     { title: 'Site Survey', desc: 'Audit technique de terrain e validation de la charge utile.', icon: Search },
                     { title: 'Plan de Levage', desc: 'Conception CAO des trajectoires e calcul des forces de vent.', icon: Compass },
-                    { title: 'Setup SUVA', desc: 'Installation certifiée e sécurisation du périmètre public.', icon: ShieldCheck },
+                    { title: 'Setup Sécurité', desc: 'Installation certifiée e sécurisation du périmètre public.', icon: ShieldCheck },
                     { title: 'Manœuvre', desc: 'Exécution de précision assistée par télémétrie laser.', icon: Zap }
                   ].map((step, i) => (
                     <motion.div 
@@ -743,7 +743,7 @@ export default function App() {
                 <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer"><X size={20} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-8 space-y-12">
-                <p className="text-steel leading-relaxed">{activeModal === 'mentions' ? 'BATIMOVE Sàrl, Rue De-MONTHOUX 64, 1201 Genève. UID: CHE-143.091.230' : 'Protocoles certifiés SUVA et standards de sécurité Genève.'}</p>
+                <p className="text-steel leading-relaxed">{activeModal === 'mentions' ? 'BATIMOVE Sàrl, Rue De-MONTHOUX 64, 1201 Genève. UID: CHE-143.091.230' : 'Protocoles de haute sécurité et standards de précision Genève.'}</p>
               </div>
               <div className="p-6 border-t border-white/5 text-center"><p className="text-[9px] font-mono text-steel/20 uppercase tracking-[0.4em]">Monte Charge Genève • Précis. Sécurisé. Suisse.</p></div>
             </motion.div>
