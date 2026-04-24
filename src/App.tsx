@@ -146,7 +146,7 @@ const Nav = ({ navigateTo, currentPage }: { navigateTo: (page: 'home' | 'contact
         <MCLogo size={32} className="group-hover:scale-110 transition-transform duration-500" />
         <div className="flex flex-col leading-none">
           <span className="text-xl md:text-2xl font-black tracking-tighter uppercase font-display tabular-nums">Monte Charge</span>
-          <span className="text-[8px] font-mono text-orange tracking-[0.4em] uppercase opacity-60 font-bold mt-1">Geneva / Vertical Logistics</span>
+          <span className="text-[8px] font-mono text-orange tracking-[0.4em] uppercase opacity-60 font-bold mt-1">Suisse / Vertical Logistics</span>
         </div>
       </div>
 
@@ -235,7 +235,7 @@ const ContactPage = ({ navigateTo }: { navigateTo: (page: 'home' | 'contact') =>
           Prêt pour le <span className="text-orange italic text-[0.95em]">Déploiement?</span>
         </h1>
         <p className="text-steel max-w-xl mx-auto lg:mx-0 text-xs md:text-sm leading-relaxed font-medium opacity-50 tracking-wide uppercase">
-          Expertise suisse certifiée pour opérations complexes à Genève.
+          Expertise suisse certifiée pour opérations complexes dans toute la Suisse.
         </p>
       </div>
 
@@ -243,7 +243,8 @@ const ContactPage = ({ navigateTo }: { navigateTo: (page: 'home' | 'contact') =>
         {/* Contact Methods - Compact Bento */}
         <div className="lg:col-span-5 flex flex-col gap-4 h-full">
           {[
-            { icon: Phone, label: "Ligne Directe", val: "076 771 86 87", href: "tel:0767718687" },
+            { icon: Phone, label: "Ligne Directe", val: "0800 825 925", href: "tel:0800825925" },
+            { icon: Phone, label: "Support Technique", val: "076 771 86 87", href: "tel:0767718687" },
             { icon: Mail, label: "Communication", val: "info@batimove.ch", href: "mailto:info@batimove.ch" }
           ].map((item, idx) => (
             <a key={idx} href={item.href} className="flex-1 block">
@@ -442,19 +443,42 @@ const SectionHeader = ({ title, sub, mono }: { title: string, sub?: string, mono
   </div>
 );
 
+const WhatsAppButton = () => (
+  <motion.a
+    href="https://wa.me/41798896406"
+    target="_blank"
+    rel="noopener noreferrer"
+    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+    animate={{ opacity: 1, scale: 1, y: 0 }}
+    whileHover={{ scale: 1.1, y: -5 }}
+    whileTap={{ scale: 0.9 }}
+    transition={{ type: "spring", stiffness: 400, damping: 17, delay: 2 }}
+    className="fixed bottom-8 right-8 z-[2000] w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,211,102,0.4)] border border-white/20 cursor-pointer group"
+  >
+    <div className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20 group-hover:opacity-40 transition-opacity" />
+    <svg 
+      viewBox="0 0 24 24" 
+      className="w-7 h-7 fill-white drop-shadow-md"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.938 3.659 1.435 5.624 1.435h.006c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    </svg>
+  </motion.a>
+);
+
 const RotatingCinematicText = () => {
   const [index, setIndex] = useState(0);
-  const words = ["Verticale", "Précise", "Elite", "Genève"];
+  const words = ["Vertical", "Chirurgical", "Elite", "Suisse"];
   
   useEffect(() => {
-    const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 3000);
+    const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 2500);
     return () => clearInterval(timer);
-  }, []);
+  }, [words.length]);
 
   return (
     <div className="space-y-4">
       <h1 className="text-[clamp(2.5rem,10vw,8rem)] font-display font-black uppercase tracking-tighter leading-[0.8] text-off-white flex flex-col items-center">
-        <motion.span initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="block">Levage</motion.span>
+        <motion.span initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="block">Levage</motion.span>
         <div className="relative h-[1.1em] w-full flex items-center justify-center overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.span 
@@ -508,7 +532,26 @@ export default function App() {
       setCurrentPage(path === '/contact' ? 'contact' : 'home');
     };
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      lenis.destroy();
+    };
   }, []);
 
   const navigateTo = (page: 'home' | 'contact') => {
@@ -535,11 +578,12 @@ export default function App() {
                 <video 
                   ref={videoRef}
                   autoPlay 
-                  loop 
                   muted 
+                  loop 
                   playsInline 
+                  preload="auto"
                   onTimeUpdate={handleTimeUpdate}
-                  className="w-full h-full object-cover brightness-[0.9] contrast-[1.2] saturate-[1.5] transition-opacity duration-700"
+                  className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] saturate-[1.2] transition-opacity duration-1000"
                   style={{ opacity: videoOpacity }}
                 >
                   <source src="/Photorealistic_Truck_Loop_Animation.mp4" type="video/mp4" />
@@ -549,7 +593,7 @@ export default function App() {
               <div className="container mx-auto px-6 relative z-20 text-center">
                 <RotatingCinematicText />
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="text-steel max-w-2xl mx-auto text-lg md:text-xl mb-12 font-medium opacity-80 leading-relaxed mt-8">
-                  Expertise suisse de haute précision pour vos transferts complexes e infrastructures sensibles à travers tout le bassin genevois.
+                  Expertise suisse de haute précision pour vos transferts complexes e infrastructures sensibles à travers tout le território suisse.
                 </motion.p>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }} className="flex flex-col sm:flex-row items-center justify-center gap-8">
                   {/* Primary Button: Démarrer Mission */}
@@ -585,24 +629,24 @@ export default function App() {
               </div>
             </motion.section>
 
-            <motion.section id="expertise" initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1 }} className="py-12 lg:py-24 px-4 md:px-8 lg:px-12 relative flex items-center">
+            <motion.section id="expertise" initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }} className="py-12 lg:py-24 px-4 md:px-8 lg:px-12 relative flex items-center">
               <div className="max-w-6xl mx-auto w-full">
-                <SectionHeader title="Expertise Genevoise" sub="Leader du levage vertical à Genève. Nous transformons les défis logistiques complexes en manœuvres de précision de haut niveau." mono="Standard d'Excellence" />
+                <SectionHeader title="Expertise Suisse" sub="Leader du levage vertical en Suisse. Nous transformons les défis logistiques complexes en manœuvres de précision de haut niveau." mono="Standard d'Excellence" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-                  <ExpertiseCard icon={Settings} title="Précision Laser" desc="Manutention au millimètre pour vos biens les plus précieux. Une maîtrise technique absolue du monte-meubles." delay={0.1} />
+                  <ExpertiseCard icon={Settings} title="Précision Chirurgicale" desc="Manutention méticuleuse pour vos biens les plus précieux. Une maîtrise technique absolue et um contrôle total du flux vertical." delay={0.1} />
                   <ExpertiseCard icon={ShieldCheck} title="Haute Sécurité" desc="Conformité totale aux normes suisses de sécurité. Protection intégrale des infrastructures et des tiers." delay={0.2} />
                   <ExpertiseCard icon={Clock} title="Disponibilité 24/7" desc="Réactivité stratégique pour les urgences et planification sur-mesure pour vos projets industriels." delay={0.3} />
                 </div>
               </div>
             </motion.section>
 
-            <motion.section id="synergy" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.2 }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 relative bg-transparent border-t border-white/5 overflow-hidden">
+            <motion.section id="synergy" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: [0.23, 1, 0.32, 1] }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 relative bg-transparent border-t border-white/5 overflow-hidden">
               <div className="absolute inset-0 technical-grid opacity-10 pointer-events-none" />
               <div className="max-w-7xl mx-auto relative z-10">
-                <SectionHeader title="L'Écosystème BatiMove" sub="La synergie parfaite entre le levage vertical e la logistique de transport for une maîtrise totale de votre flux." mono="Synergie Stratégique" />
+                <SectionHeader title="L'Écosystème BatiMove Sàrl" sub="La synergie parfaite entre le levage vertical e la logistique de transport pour une maîtrise totale de votre flux." mono="Synergie Stratégique" />
                 <div className="grid grid-cols-12 gap-8 lg:gap-12 items-stretch">
                   <div className="col-span-12 lg:col-span-8 relative aspect-[16/9] bg-black/60 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl group">
-                    <img src="/logistic.png" alt="Logistique Verticale Genève" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[3s]" />
+                    <img src="/logistic.png" alt="Logistique Verticale Suisse" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[3s]" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                     <div className="absolute bottom-8 left-8 flex items-center gap-4 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl">
                       <div className="w-2 h-2 rounded-full bg-orange animate-pulse" />
@@ -612,22 +656,22 @@ export default function App() {
                   <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
                     <motion.div 
                       whileHover={{ x: 10 }}
-                      className="flex-1 p-8 bg-white/[0.01] backdrop-blur-3xl border border-white/5 rounded-[2rem] space-y-4 hover:border-orange/20 transition-all group relative overflow-hidden"
+                      className="flex-1 p-6 bg-white/[0.01] backdrop-blur-3xl border border-white/5 rounded-[2rem] space-y-3 hover:border-orange/20 transition-all group relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity"><Activity size={64} /></div>
                       <h4 className="text-2xl font-display font-black uppercase text-off-white group-hover:text-orange transition-colors">Maîtrise</h4>
-                      <p className="text-steel text-sm leading-relaxed">Une coordination sans faille for minimiser les temps d'arrêt e optimiser la sécurité de chaque transfert.</p>
+                      <p className="text-steel text-sm leading-relaxed">Une coordination sans faille pour minimiser les temps d'arrêt e optimiser la sécurité de chaque transfert.</p>
                       <div className="pt-4"><span className="text-[10px] font-mono text-orange uppercase tracking-widest border-b border-orange/30 pb-1 cursor-pointer hover:border-orange transition-all">Consulter les Protocoles</span></div>
                     </motion.div>
-                    <div className="p-8 bg-gradient-to-br from-orange/[0.07] to-transparent backdrop-blur-3xl border border-orange/10 rounded-[2.5rem] space-y-8 group relative overflow-hidden">
+                    <div className="p-6 bg-gradient-to-br from-orange/[0.07] to-transparent backdrop-blur-3xl border border-orange/10 rounded-[2.5rem] space-y-6 group relative overflow-hidden">
                       <div className="space-y-1">
                         <span className="font-mono text-[9px] text-orange tracking-[0.5em] uppercase font-black">Partenaire Elite</span>
-                        <h4 className="text-5xl font-display font-black uppercase text-off-white tracking-tighter">BatiMove</h4>
+                        <h4 className="text-3xl font-display font-black uppercase text-off-white tracking-tighter">BatiMove Sàrl</h4>
                       </div>
-                      <a href="https://batimove.ch" target="_blank" rel="noopener noreferrer" className="btn-luxury-orange group w-full text-white cursor-pointer py-4 shadow-[0_20px_40px_-15px_rgba(255,83,4,0.3)] overflow-hidden relative">
+                      <a href="https://batimove.ch" target="_blank" rel="noopener noreferrer" className="btn-luxury-orange group w-full text-white cursor-pointer py-3 shadow-[0_15px_30px_-10px_rgba(255,83,4,0.3)] overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        <span className="font-display font-black text-[10px] uppercase tracking-[0.2em] relative z-10">Explorez BatiMove</span>
-                        <div className="btn-luxury-icon-wrapper relative z-10"><ArrowUpRight size={14} /></div>
+                        <span className="font-display font-black text-[9px] uppercase tracking-[0.2em] relative z-10">Explorez BatiMove Sàrl</span>
+                        <div className="btn-luxury-icon-wrapper relative z-10 scale-90"><ArrowUpRight size={14} /></div>
                       </a>
                     </div>
                   </div>
@@ -635,9 +679,9 @@ export default function App() {
               </div>
             </motion.section>
 
-            <motion.section id="protocoles" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 bg-transparent border-b border-white/5 relative">
+            <motion.section id="protocoles" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 bg-transparent border-b border-white/5 relative">
               <div className="max-w-7xl mx-auto">
-                <SectionHeader title="Protocole Haute-Sûreté" sub="Une méthodologie rigoureuse, du site-survey à la manœuvre finale, for une sécurité sans compromis." mono="Sécurité Certifiée" />
+                <SectionHeader title="Protocole Haute-Sûreté" sub="Une méthodologie rigoureuse, du site-survey à la manœuvre finale, pour une sécurité sans compromis." mono="Sécurité Certifiée" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
                     { title: 'Site Survey', desc: 'Audit technique de terrain e validation de la charge utile.', icon: Search },
@@ -672,7 +716,7 @@ export default function App() {
                               <svg viewBox="0 0 100 100" className="w-full h-full">
                                 <path id={`circlePath-${i}`} d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
                                 <text className="text-[10px] font-mono fill-orange uppercase tracking-[0.2em]">
-                                  <textPath xlinkHref={`#circlePath-${i}`}>PRECISION • GENÈVE • </textPath>
+                                  <textPath xlinkHref={`#circlePath-${i}`}>PRECISION • SUISSE • </textPath>
                                 </text>
                               </svg>
                             </motion.div>
@@ -743,13 +787,14 @@ export default function App() {
                 <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer"><X size={20} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-8 space-y-12">
-                <p className="text-steel leading-relaxed">{activeModal === 'mentions' ? 'BATIMOVE Sàrl, Rue De-MONTHOUX 64, 1201 Genève. UID: CHE-143.091.230' : 'Protocoles de haute sécurité et standards de précision Genève.'}</p>
+                <p className="text-steel leading-relaxed">{activeModal === 'mentions' ? 'BATIMOVE Sàrl, Rue De-MONTHOUX 64, 1201 Genève. UID: CHE-143.091.230' : 'Protocoles de haute sécurité et standards de précision Suisse.'}</p>
               </div>
-              <div className="p-6 border-t border-white/5 text-center"><p className="text-[9px] font-mono text-steel/20 uppercase tracking-[0.4em]">Monte Charge Genève • Précis. Sécurisé. Suisse.</p></div>
+              <div className="p-6 border-t border-white/5 text-center"><p className="text-[9px] font-mono text-steel/20 uppercase tracking-[0.4em]">Monte Charge Suisse • Précis. Sécurisé. Suisse.</p></div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+      <WhatsAppButton />
     </div>
   );
 }
