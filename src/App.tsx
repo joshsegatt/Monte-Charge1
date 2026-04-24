@@ -4,32 +4,29 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowUpRight, 
+  ArrowDown,
   Settings,
   ShieldCheck,
-  Shield,
   Clock, 
-  MapPin, 
-  ChevronRight, 
+  Search,
+  Compass,
   Menu, 
   X,
-  Dna,
   Zap,
   Activity,
-  Drill,
-  Anchor,
   Truck,
   Sun,
   Cloud,
   CloudRain,
   CloudLightning,
   Snowflake,
-  FileText,
-  Lock,
-  Globe
+  Mail,
+  Phone
 } from 'lucide-react';
+
 import Lenis from 'lenis';
 import { cn } from './lib/utils';
 
@@ -44,32 +41,20 @@ const MCLogo = ({ size = 40, className = "" }: { size?: number, className?: stri
     xmlns="http://www.w3.org/2000/svg"
     className={cn("filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]", className)}
   >
-    {/* Geometric Base (Chassis) */}
     <rect x="15" y="70" width="70" height="6" rx="3" fill="currentColor" className="text-orange" />
-    
-    {/* Minimalist Cab (Apple Style) */}
     <path 
       d="M15 70V55C15 52.2386 17.2386 50 20 50H45C47.7614 50 50 52.2386 50 55V70H15Z" 
       fill="currentColor" 
       className="text-orange" 
     />
-    {/* Cab Window - Negative Space */}
     <rect x="25" y="55" width="15" height="8" rx="1.5" fill="#071925" />
-
-    {/* Extended Mechanical Arm (Telescopic) */}
     <g transform="translate(45 65) rotate(-35)">
-      {/* Lower Segment */}
       <rect x="0" y="-3" width="40" height="6" rx="3" fill="currentColor" className="text-orange" />
-      {/* Upper Segment (Extended) */}
       <rect x="35" y="-3" width="30" height="6" rx="3" fill="#F5F5DC" />
-      {/* Pivot Point */}
       <circle cx="0" cy="0" r="4" fill="#071925" stroke="currentColor" strokeWidth="1.5" className="text-orange" />
     </g>
-
-    {/* Precision Wheels */}
     <circle cx="28" cy="76" r="8" fill="#071925" stroke="currentColor" strokeWidth="2.5" className="text-orange" />
     <circle cx="28" cy="76" r="3" fill="currentColor" className="text-orange" />
-    
     <circle cx="72" cy="76" r="8" fill="#071925" stroke="currentColor" strokeWidth="2.5" className="text-orange" />
     <circle cx="72" cy="76" r="3" fill="currentColor" className="text-orange" />
   </svg>
@@ -81,7 +66,6 @@ const TelemetryModule = React.memo(() => {
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
-    
     const fetchWeather = async () => {
       try {
         const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=46.2022&longitude=6.1457&current_weather=true');
@@ -94,10 +78,8 @@ const TelemetryModule = React.memo(() => {
         console.error("Weather failure");
       }
     };
-
     fetchWeather();
     const weatherTimer = setInterval(fetchWeather, 600000);
-
     return () => {
       clearInterval(timer);
       clearInterval(weatherTimer);
@@ -112,18 +94,11 @@ const TelemetryModule = React.memo(() => {
     return <Snowflake size={14} className="text-steel" />;
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('fr-CH', { 
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hour12: false, timeZone: 'Europe/Zurich'
-    });
-  };
-
   return (
     <div className="flex items-center gap-3 bg-white/[0.02] px-3 py-1.5 rounded-lg border border-white/5 backdrop-blur-sm shadow-inner group cursor-default transition-all hover:bg-white/[0.04]">
       <div className="flex items-center gap-2 pr-3 border-r border-white/5">
         <span className="text-[9px] text-steel uppercase tracking-widest font-bold">GE</span>
-        <span className="text-[11px] text-off-white font-medium tracking-[0.05em] min-w-[70px] uppercase tabular-nums">{formatTime(time)}</span>
+        <span className="text-[11px] text-off-white font-medium tracking-[0.05em] min-w-[70px] uppercase tabular-nums">{time.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Zurich' })}</span>
       </div>
       {weather && (
         <div className="flex items-center gap-2 transition-all duration-500">
@@ -137,92 +112,86 @@ const TelemetryModule = React.memo(() => {
   );
 });
 
-const Nav = ({ onContactClick }: { onContactClick: () => void }) => {
+const Nav = ({ navigateTo, currentPage }: { navigateTo: (page: 'home' | 'contact') => void, currentPage: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled_val = height > 0 ? (winScroll / height) : 0;
+      setProgress(scrolled_val);
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = ['Expertise', 'Synergy', 'Protocoles', 'Contact'];
+  const navItems = ['Expertise', 'Synergy', 'Protocoles'];
 
   return (
     <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-700 py-6 px-6 md:px-12 flex justify-between items-center will-change-transform",
-      scrolled ? "bg-petrol/90 backdrop-blur-2xl border-b border-white/5 py-4 shadow-2xl" : "bg-transparent"
+      "fixed top-0 left-0 right-0 z-[1000] transition-all duration-700 py-4 px-6 md:px-10 flex justify-between items-center",
+      scrolled || currentPage !== 'home' ? "bg-petrol/90 backdrop-blur-2xl border-b border-white/5 py-3 shadow-2xl" : "bg-transparent"
     )}>
-      <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <MCLogo size={48} className="group-hover:scale-110 transition-transform duration-500 will-change-transform" />
-        <span className="text-xl md:text-2xl font-black tracking-tighter uppercase font-display cursor-pointer tabular-nums">Monte Charge</span>
+      {currentPage === 'home' && (
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-white/5 overflow-hidden">
+          <motion.div className="h-full bg-orange shadow-[0_0_15px_rgba(255,107,0,0.6)]" style={{ width: `${progress * 100}%` }} transition={{ type: "spring", stiffness: 400, damping: 40 }} />
+        </div>
+      )}
+
+      <div className="flex items-center gap-4 group cursor-pointer" onClick={() => currentPage === 'home' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : navigateTo('home')}>
+        <MCLogo size={32} className="group-hover:scale-110 transition-transform duration-500" />
+        <div className="flex flex-col leading-none">
+          <span className="text-xl md:text-2xl font-black tracking-tighter uppercase font-display tabular-nums">Monte Charge</span>
+          <span className="text-[8px] font-mono text-orange tracking-[0.4em] uppercase opacity-60 font-bold mt-1">Geneva / Vertical Logistics</span>
+        </div>
       </div>
 
-      <div className="hidden md:flex items-center gap-8 lg:gap-12">
-        <div className="flex items-center gap-8 text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-steel">
+      <div className="hidden md:flex items-center gap-12 lg:gap-16">
+        <div className="flex items-center gap-10 text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-steel">
           {navItems.map((item) => (
-            item === 'Contact' ? (
-              <motion.button 
-                key={item} 
-                onClick={onContactClick}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-tactile-orange text-black px-6 py-2 rounded-full font-display font-extrabold text-[10px] tracking-widest uppercase antialiased cursor-pointer"
-              >
-                {item}
-              </motion.button>
-            ) : (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-off-white/80 border-b border-orange/0 hover:border-orange hover:text-off-white transition-all pb-1 group cursor-pointer">
-                {item}
-              </a>
-            )
+            <a key={item} href={currentPage === 'home' ? `#${item.toLowerCase()}` : '/'} onClick={(e) => {
+              if (currentPage !== 'home') {
+                e.preventDefault();
+                navigateTo('home');
+                setTimeout(() => document.getElementById(item.toLowerCase())?.scrollIntoView({ behavior: 'smooth' }), 100);
+              }
+            }} className="text-off-white/60 hover:text-orange transition-all group relative py-2 cursor-pointer">
+              {item}
+              <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-orange transition-all duration-500 group-hover:w-full" />
+            </a>
           ))}
+          <button onClick={() => navigateTo('contact')} className={cn("px-6 py-2 border rounded-full transition-all cursor-pointer font-display font-black uppercase tracking-widest text-[10px]", currentPage === 'contact' ? "bg-orange text-black border-orange" : "border-orange/50 text-orange hover:bg-orange hover:text-black")}>Contact</button>
         </div>
-        
-        <div className="hidden lg:block border-l border-white/10 pl-8">
-          <TelemetryModule />
-        </div>
+        <div className="hidden lg:flex items-center gap-8 border-l border-white/10 pl-12"><TelemetryModule /></div>
       </div>
 
       <div className="md:hidden">
-        <button onClick={() => setIsOpen(!isOpen)} className="text-off-white cursor-pointer p-2">
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <button onClick={() => setIsOpen(!isOpen)} className="text-off-white cursor-pointer p-2">{isOpen ? <X size={24} /> : <Menu size={24} />}</button>
       </div>
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-0 bg-petrol z-50 flex flex-col p-12"
-          >
+          <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} className="fixed inset-0 bg-petrol z-50 flex flex-col p-12">
             <div className="flex justify-between items-center mb-16">
-              <span className="font-display font-black uppercase tracking-tighter text-2xl">Menu</span>
-              <button onClick={() => setIsOpen(false)} className="w-12 h-12 glass flex items-center justify-center cursor-pointer hover:bg-orange hover:text-black transition-all">
-                <X size={24} />
-              </button>
+              <span className="font-display font-black uppercase text-2xl">Menu</span>
+              <button onClick={() => setIsOpen(false)} className="w-12 h-12 glass flex items-center justify-center cursor-pointer hover:bg-orange hover:text-black transition-all"><X size={24} /></button>
             </div>
-            <div className="flex flex-col gap-8 text-3xl font-black uppercase tracking-tighter">
-              {navItems.map((item, i) => (
-                <motion.button 
-                  key={item}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * i }}
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (item === 'Contact') onContactClick();
-                    else window.location.hash = `#${item.toLowerCase()}`;
-                  }}
-                  className="text-left hover:text-orange transition-colors cursor-pointer"
-                >
-                  {item}
-                </motion.button>
+            <div className="flex flex-col gap-8 text-3xl font-black uppercase">
+              {navItems.map((item) => (
+                <a key={item} href={currentPage === 'home' ? `#${item.toLowerCase()}` : '/'} onClick={(e) => {
+                  setIsOpen(false);
+                  if (currentPage !== 'home') {
+                    e.preventDefault();
+                    navigateTo('home');
+                    setTimeout(() => document.getElementById(item.toLowerCase())?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }
+                }} className="text-left hover:text-orange transition-colors cursor-pointer text-3xl font-black uppercase">{item}</a>
               ))}
+              <button onClick={() => { navigateTo('contact'); setIsOpen(false); }} className={cn("text-left transition-colors cursor-pointer text-3xl font-black uppercase", currentPage === 'contact' ? "text-orange" : "text-off-white hover:text-orange")}>Contact</button>
             </div>
           </motion.div>
         )}
@@ -231,1080 +200,552 @@ const Nav = ({ onContactClick }: { onContactClick: () => void }) => {
   );
 };
 
-const Lightbox = ({ src, onClose }: { src: string, onClose: () => void }) => {
-  return (
-    <AnimatePresence>
-      {src && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 z-[200] bg-petrol/95 backdrop-blur-2xl flex items-center justify-center p-4 md:p-12 cursor-zoom-out"
-        >
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="relative z-10 max-w-[90vw] max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img 
-              src={src} 
-              alt="Mission Zoom" 
-              className="max-w-full max-h-[80vh] object-contain shadow-2xl border border-white/5 rounded-lg"
-            />
-            <button 
-              onClick={onClose}
-              className="absolute -top-12 -right-0 md:-top-16 md:-right-16 w-12 h-12 glass flex items-center justify-center hover:bg-orange hover:text-black transition-all group cursor-pointer"
-            >
-              <X size={24} className="group-hover:rotate-90 transition-transform" />
-            </button>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
+// --- Vibe Components (Magic UI / Aceternity Inspired) ---
+const AuroraBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+    <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-orange/20 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+    <div className="absolute top-[40%] -right-[10%] w-[60%] h-[60%] bg-orange/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '12s' }} />
+    <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] bg-white/[0.03] rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '10s' }} />
+  </div>
+);
 
-const ExpertiseCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: number }) => {
+
+const ContactPage = ({ navigateTo }: { navigateTo: (page: 'home' | 'contact') => void }) => {
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success'>('idle');
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative p-10 rounded-[2.5rem] bg-white/[0.01] border border-white/5 transition-all duration-500 hover:border-orange/40 overflow-hidden"
+    <motion.main 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      className="h-screen bg-[#070B0F] pt-24 pb-12 px-6 md:px-12 lg:px-20 relative overflow-hidden flex flex-col items-center justify-center"
     >
-      {/* Noise Texture Overlay */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" 
-           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
-      />
-      
-      <div className="relative z-10 space-y-8">
-        <div className="w-16 h-16 bg-white/[0.03] backdrop-blur-2xl rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-[5deg] transition-all duration-700 border border-white/10 shadow-[0_0_30px_rgba(255,107,0,0.1)]">
-          <Icon className="text-orange" size={32} />
-        </div>
+    <AuroraBackground />
+    <div className="absolute inset-0 technical-grid opacity-[0.03] pointer-events-none" />
+    
+    {/* Subtle Depth Accents */}
+    <div className="absolute top-1/4 -left-20 w-96 h-96 bg-orange/5 rounded-full blur-[120px] pointer-events-none" />
+    <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-orange/5 rounded-full blur-[120px] pointer-events-none" />
+
+    <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col justify-center">
+      {/* Compact Header Section */}
+      <div className="mb-10 text-center lg:text-left">
         
-        <div className="space-y-4">
-          <h4 className="text-2xl font-display font-black uppercase tracking-tighter text-off-white group-hover:text-orange transition-colors duration-500">
-            {title}
-          </h4>
-          <p className="text-[15px] leading-relaxed text-steel font-sans group-hover:text-off-white/80 transition-colors duration-500">
-            {desc}
-          </p>
-        </div>
-
-      </div>
-    </motion.div>
-  );
-};
-
-const GlassIcon = ({ icon: Icon, className }: { icon: any, className?: string }) => (
-  <div className={cn("icon-3d-container relative w-12 h-12 flex items-center justify-center group", className)}>
-    <div className="icon-3d-glow" />
-    <motion.div 
-      animate={{ y: [0, -5, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      className="icon-3d-content"
-    >
-      <Icon size={24} className="text-orange drop-shadow-[0_4px_8px_rgba(255,83,4,0.4)]" />
-    </motion.div>
-  </div>
-);
-
-const SectionHeader = ({ title, sub, mono, titleSize = "text-[clamp(1.75rem,5vw,4rem)]" }: { title: string, sub?: string, mono?: string, titleSize?: string }) => (
-  <div className="mb-10 md:mb-16 lg:mb-20 px-4 md:px-0">
-    <div className="flex items-center gap-4 mb-4">
-      <div className="h-px w-8 md:w-12 bg-orange" />
-      <span className="font-mono text-[10px] md:text-xs text-orange tracking-widest uppercase">{mono}</span>
-    </div>
-    <h2 className={cn(titleSize, "font-display font-black mb-6 leading-[1.1] tracking-tight")}>
-      <motion.span
-        initial={{ y: '100%' }}
-        whileInView={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        viewport={{ once: true }}
-        className="inline-block will-change-transform"
-      >
-        {title}
-      </motion.span>
-    </h2>
-    {sub && <p className="text-steel max-w-xl text-[clamp(0.875rem,2vw,1.1rem)] leading-relaxed font-sans antialiased">{sub}</p>}
-  </div>
-);
-
-const TechnicalCard = ({ 
-  icon: Icon, 
-  title, 
-  desc, 
-  specs, 
-  gridSpan = "col-span-1",
-  isLive = false,
-  ctaText = "Consulter",
-  unitID = "MC-UNIT",
-  marker = "GENÈVE / CH"
-}: { 
-  icon: any, 
-  title: string, 
-  desc: string, 
-  specs: string[], 
-  gridSpan?: string,
-  isLive?: boolean,
-  ctaText?: string,
-  unitID?: string,
-  marker?: string
-}) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      viewport={{ once: true }}
-      className={cn(
-        "group relative p-6 flex flex-col h-full rounded-[1.5rem] bg-white/[0.01] border border-white/5 transition-all duration-700 hover:border-orange/20 overflow-hidden",
-        gridSpan
-      )}
-    >
-      {/* Instrumentation Markers */}
-      <div className="absolute top-4 left-6 flex items-center gap-2 pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-        <span className="font-mono text-[7px] uppercase tracking-[0.4em] font-black">{unitID}</span>
-        <div className="w-1 h-px bg-white/40" />
-      </div>
-      <div className="absolute top-4 right-6 pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-        <span className="font-mono text-[7px] uppercase tracking-[0.3em]">{marker}</span>
-      </div>
-
-      {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" 
-           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
-      />
-
-      <div className="flex justify-between items-start mt-6 mb-6 relative z-10">
-        <div className="w-12 h-12 bg-white/[0.03] backdrop-blur-2xl rounded-xl flex items-center justify-center group-hover:bg-orange/10 group-hover:scale-105 transition-all duration-700 border border-white/10 shadow-[0_0_20px_rgba(255,107,0,0.05)]">
-          <Icon className="text-orange" size={24} />
-        </div>
-        <div className="flex gap-4 items-center">
-          {isLive && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange/10 border border-orange/40 rounded-full">
-              <span className="w-1 h-1 rounded-full bg-orange animate-pulse" />
-              <span className="font-mono text-[7px] text-orange uppercase tracking-widest font-black">Online</span>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="space-y-4 relative z-10">
-        <h3 className="text-2xl font-display font-black tracking-tight uppercase group-hover:text-orange transition-colors duration-500">
-          {title}
-        </h3>
-        <p className="text-[15px] leading-relaxed text-steel group-hover:text-off-white transition-colors duration-500 font-sans">
-          {desc}
+        <h1 className="text-[clamp(1.8rem,5vw,3rem)] font-display font-black uppercase tracking-tighter leading-none text-off-white mb-3">
+          Prêt pour le <span className="text-orange italic text-[0.95em]">Déploiement?</span>
+        </h1>
+        <p className="text-steel max-w-xl mx-auto lg:mx-0 text-xs md:text-sm leading-relaxed font-medium opacity-50 tracking-wide uppercase">
+          Expertise suisse certifiée pour opérations complexes à Genève.
         </p>
       </div>
 
-      <div className="mt-auto pt-6 space-y-5 relative z-10">
-        <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/5">
-          {specs.slice(0, 3).map((spec, i) => (
-            <div key={i} className="flex flex-col gap-0.5 border-r last:border-0 border-white/5">
-              <span className="font-mono text-[6px] text-steel/40 uppercase tracking-[0.1em]">{spec.split(':')[0]}</span>
-              <span className="font-mono text-[8px] text-orange font-bold truncate pr-1">{spec.split(':')[1]}</span>
-            </div>
-          ))}
-        </div>
-        
-        <motion.div 
-          className="w-full h-10 rounded-full border border-white/5 bg-white/[0.02] group-hover:border-orange/20 transition-all duration-700 font-mono text-[9px] uppercase tracking-[0.3em] font-black flex items-center justify-center gap-3 relative overflow-hidden cursor-default"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-orange/0 via-orange/5 to-orange/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1500" />
-          <span className="relative z-10 text-steel/60 group-hover:text-orange transition-colors duration-700 font-sans text-[10px] tracking-widest">{ctaText}</span>
-          <div className="w-1.5 h-1.5 rounded-full bg-orange/40 group-hover:bg-orange animate-pulse" />
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-};
-
-const ProtocolCard = ({ title, desc, phase, i }: { title: string, desc: string, phase: string, i: number }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative p-10 rounded-[2.5rem] bg-white/[0.01] border border-white/5 transition-all duration-700 hover:border-orange/40 overflow-hidden will-change-transform"
-    >
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" 
-           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
-      />
-
-      <div className="flex flex-col gap-10 relative z-10">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] text-orange tracking-[0.3em] uppercase font-black">{phase}</span>
-          <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-xs font-black group-hover:bg-orange group-hover:text-black group-hover:border-orange transition-all duration-500 shadow-[0_0_20px_rgba(255,107,0,0.1)]">
-            {i + 1}
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-2xl font-display font-black uppercase tracking-tighter group-hover:text-orange transition-colors duration-500">{title}</h4>
-          <p className="text-[15px] leading-relaxed text-steel font-light italic">{desc}</p>
-        </div>
-      </div>
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange/20 to-transparent group-hover:via-orange/60 transition-all duration-1000" />
-    </motion.div>
-  );
-};
-
-// --- Content ---
-
-const ContactModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-petrol/90 backdrop-blur-2xl"
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-5xl max-h-[90vh] bg-petrol/95 border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] rounded-2xl md:rounded-[3rem] overflow-y-auto relative z-10 technical-grid"
-            data-lenis-prevent
-          >
-            <div className="absolute top-8 right-8 z-20">
-              <button 
-                onClick={onClose}
-                className="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition-all group border-white/10"
-              >
-                <X size={20} className="group-hover:scale-110 transition-transform" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="p-10 md:p-16 bg-white/5 border-r border-white/5">
-                <SectionHeader 
-                  title="Secteur Technique" 
-                  titleSize="text-[clamp(2rem,4vw,3.2rem)]"
-                  sub="Bureau d'études Monte Charge à Genève. Une réponse technique sous 24h garantie." 
-                  mono="Demande"
-                />
-                
-                <div className="space-y-10 mt-12">
-                  <div className="flex gap-6 items-start">
-                    <div className="w-12 h-12 glass flex items-center justify-center shrink-0 border-white/5">
-                      <MapPin className="text-orange" size={20} />
-                    </div>
-                    <div>
-                      <h5 className="font-mono text-[10px] text-orange tracking-widest uppercase mb-1">Siège Social</h5>
-                      <p className="text-off-white text-sm leading-relaxed font-sans italic">Rue de Lyon, 1211 Genève, Suisse</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-6 items-start">
-                    <div className="w-12 h-12 glass flex items-center justify-center shrink-0 border-white/5">
-                      <Activity className="text-orange" size={20} />
-                    </div>
-                    <div>
-                      <h5 className="font-mono text-[10px] text-orange tracking-widest uppercase mb-1">Support 24/7</h5>
-                      <p className="text-off-white text-sm leading-relaxed font-sans italic">+41 22 000 00 00 <br /> contact@montecharge-geneve.ch</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-10 md:p-16">
-                <form className="space-y-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="font-mono text-[9px] uppercase text-steel tracking-[0.2em]">Identité</label>
-                      <input type="text" className="w-full bg-transparent border-b border-white/10 pb-3 focus:border-orange outline-none transition-all text-base placeholder:text-steel/20" placeholder="Jean Dupont / CERN" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-mono text-[9px] uppercase text-steel tracking-[0.2em]">Spécificité</label>
-                      <select className="w-full bg-transparent border-b border-white/10 pb-3 focus:border-orange outline-none transition-all text-base appearance-none cursor-pointer">
-                        <option className="bg-petrol">Monte-Meubles Lourd</option>
-                        <option className="bg-petrol">Unité Compacte</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-mono text-[9px] uppercase text-steel tracking-[0.2em]">Contact Direct</label>
-                    <input type="email" className="w-full bg-transparent border-b border-white/10 pb-3 focus:border-orange outline-none transition-all text-base placeholder:text-steel/20" placeholder="service@domain.ch" />
-                  </div>
-                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="btn-tactile-orange w-full py-5 text-black font-display font-extrabold uppercase tracking-widest rounded-full text-[12px] antialiased cursor-pointer"
-                  >
-                    <div className="flex items-center justify-center gap-3">
-                      Lancer l'Analyse
-                      <ArrowUpRight size={18} />
-                    </div>
-                  </motion.button>
-                </form>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-const QuoteOnboardingModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [step, setStep] = useState(1);
-  const totalSteps = 3;
-
-  const nextStep = () => setStep(prev => Math.min(prev + 1, totalSteps));
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
-
-  // Reset step on close
-  useEffect(() => {
-    if (!isOpen) {
-      const timer = setTimeout(() => setStep(1), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-petrol/95 backdrop-blur-3xl"
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="w-full max-w-4xl max-h-[90vh] bg-petrol/95 border border-white/10 rounded-2xl md:rounded-[3rem] overflow-y-auto relative z-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
-            data-lenis-prevent
-          >
-            {/* Design elements */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-white/5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Contact Methods - Compact Bento */}
+        <div className="lg:col-span-5 flex flex-col gap-4 h-full">
+          {[
+            { icon: Phone, label: "Ligne Directe", val: "076 771 86 87", href: "tel:0767718687" },
+            { icon: Mail, label: "Communication", val: "info@batimove.ch", href: "mailto:info@batimove.ch" }
+          ].map((item, idx) => (
+            <a key={idx} href={item.href} className="flex-1 block">
               <motion.div 
-                className="h-full bg-orange" 
-                animate={{ width: `${(step / totalSteps) * 100}%` }}
-              />
-            </div>
-
-            <div className="p-8 md:p-16">
-              <div className="flex justify-between items-center mb-12 lg:mb-16">
-                <div>
-                  <div className="font-mono text-[10px] text-orange tracking-[0.3em] uppercase mb-2">Analyse NIVEAU 0{step} / 0{totalSteps}</div>
-                  <h2 className="text-3xl md:text-4xl font-display font-black uppercase tracking-tighter">
-                    {step === 1 && "Configuration du Service"}
-                    {step === 2 && "Logistique d'Accès"}
-                    {step === 3 && "Vérification Finale"}
-                  </h2>
+                whileHover={{ y: -3, scale: 1.01 }}
+                className="group relative p-px rounded-[1.8rem] bg-gradient-to-b from-white/10 to-transparent hover:from-orange/40 transition-all duration-500 h-full cursor-pointer"
+              >
+                <div className="relative p-5 bg-[#0A0F14] rounded-[1.7rem] overflow-hidden flex items-center gap-5 h-full shadow-xl">
+                  <div className="relative w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 flex items-center justify-center group-hover:border-orange/30 transition-all duration-500 shadow-inner overflow-hidden">
+                    <div className="absolute inset-0 bg-orange/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <item.icon className="text-orange relative z-10" size={20} strokeWidth={1.5} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="font-mono text-[7px] text-orange tracking-[0.3em] uppercase font-black opacity-80">{item.label}</span>
+                    <h3 className="text-lg md:text-xl font-display font-black text-off-white tracking-tighter group-hover:text-orange transition-colors duration-500 truncate">
+                      {item.val}
+                    </h3>
+                  </div>
                 </div>
-                <button onClick={onClose} className="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition-all cursor-pointer">
-                  <X size={24} />
-                </button>
-              </div>
+              </motion.div>
+            </a>
+          ))}
 
-              <div className="min-h-[300px]">
-                <AnimatePresence mode="wait">
-                  {step === 1 && (
-                    <motion.div 
-                      key="step1"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          <a 
+            href="https://www.google.com/maps/search/?api=1&query=Rue+De-MONTHOUX+64,+1201+Genève" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex-1 block"
+          >
+            <div className="p-px bg-gradient-to-br from-white/10 to-transparent border border-white/5 rounded-[1.8rem] group relative overflow-hidden h-full min-h-[140px] cursor-pointer">
+              <div className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-700">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0" 
+                  scrolling="no" 
+                  marginHeight={0} 
+                  marginWidth={0} 
+                  src="https://maps.google.com/maps?q=Rue%20De-MONTHOUX%2064,%201201%20Gen%C3%A8ve&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                  className="pointer-events-none"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F14] via-[#0A0F14]/40 to-transparent pointer-events-none" />
+              
+              <div className="relative z-10 p-5 h-full flex flex-col justify-end gap-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange animate-pulse" />
+                  <span className="font-mono text-[8px] text-off-white uppercase tracking-widest font-black">Logistics Hub GVA</span>
+                </div>
+                <p className="text-[9px] text-steel leading-relaxed font-medium opacity-60 uppercase tracking-tighter">
+                  Rue De-Monthoux 64, 1201 Genève
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        {/* Compact Dossier Form */}
+        <div className="lg:col-span-7 h-full">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="group relative p-px rounded-[2.5rem] bg-gradient-to-b from-white/10 to-transparent hover:from-orange/20 transition-all duration-1000 shadow-2xl h-full"
+          >
+            <div className="relative p-6 lg:p-10 bg-[#0A0F14]/90 backdrop-blur-3xl rounded-[2.4rem] h-full flex flex-col justify-between overflow-hidden">
+              <AnimatePresence mode="wait">
+                {formStatus === 'success' ? (
+                  <motion.div 
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0A0F14]/95 p-10 text-center space-y-6"
+                  >
+                    <div className="w-24 h-24 rounded-full bg-orange/10 border border-orange/30 flex items-center justify-center">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", damping: 12 }}
+                      >
+                        <ShieldCheck size={48} className="text-orange" />
+                      </motion.div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-3xl font-display font-black uppercase text-off-white">Dossier Transmis</h3>
+                      <p className="text-steel font-mono text-[10px] uppercase tracking-widest">Opération Initialisée avec Succès</p>
+                    </div>
+                    <button 
+                      onClick={() => setFormStatus('idle')}
+                      className="px-8 py-3 rounded-xl border border-white/10 text-off-white text-[10px] font-mono uppercase hover:bg-white/5 transition-all"
                     >
-                      {[
-                        { title: 'Standard', desc: 'Déménagement résidentiel classique de haute qualité.', icon: ChevronRight },
-                        { title: 'Industriel', desc: 'Charges lourdes, machines, coffre-forts ou pianos.', icon: Anchor }
-                      ].map((item) => (
+                      Nouveau Dossier
+                    </button>
+                  </motion.div>
+                ) : (
+                  <div className="h-full flex flex-col">
+                    <div className="flex justify-between items-end border-b border-white/5 pb-4 mb-6">
+                      <div className="space-y-0.5">
+                        <h2 className="text-2xl font-display font-black uppercase tracking-tighter text-off-white">Dossier Mission</h2>
+                        <p className="text-[8px] font-mono text-steel uppercase tracking-[0.4em] font-black opacity-30">GENÈVE-OPS / v4.0</p>
+                      </div>
+                    </div>
+                    
+                    <form 
+                      className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 flex-1" 
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        setFormStatus('sending');
+                        const formData = new FormData(e.currentTarget);
+                        try {
+                          const res = await fetch('https://formspree.io/f/xgorrdkg', {
+                            method: 'POST',
+                            body: formData,
+                            headers: { 'Accept': 'application/json' }
+                          });
+                          if (res.ok) setFormStatus('success');
+                          else setFormStatus('idle');
+                        } catch {
+                          setFormStatus('idle');
+                        }
+                      }}
+                    >
+                      <div className="space-y-1">
+                        <label className="text-[7px] font-mono text-steel uppercase tracking-widest font-black ml-1 opacity-60">Client ID</label>
+                        <input name="name" required type="text" className="w-full bg-white/[0.02] border-b border-white/10 px-0 py-2 text-off-white focus:border-orange transition-all outline-none text-xs placeholder:text-steel/20 font-bold" placeholder="Nom complet" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[7px] font-mono text-steel uppercase tracking-widest font-black ml-1 opacity-60">Tech Link</label>
+                        <input name="email" required type="email" className="w-full bg-white/[0.02] border-b border-white/10 px-0 py-2 text-off-white focus:border-orange transition-all outline-none text-xs placeholder:text-steel/20 font-bold" placeholder="Email pro" />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 space-y-1 flex-1">
+                        <label className="text-[7px] font-mono text-steel uppercase tracking-widest font-black ml-1 opacity-60">Operational Details</label>
+                        <textarea name="message" required className="w-full bg-white/[0.02] border-b border-white/10 px-0 py-2 text-off-white focus:border-orange transition-all outline-none text-xs h-16 md:h-20 resize-none placeholder:text-steel/20 font-bold" placeholder="Lieu, charge, contraintes..." />
+                      </div>
+                      <div className="col-span-1 md:col-span-2 pt-2">
                         <button 
-                          key={item.title}
-                          onClick={nextStep}
-                          className="p-8 glass text-left border-white/5 rounded-[2rem] hover:border-orange/40 transition-all group relative overflow-hidden flex flex-col"
+                          disabled={formStatus === 'sending'}
+                          className="w-full relative group overflow-hidden rounded-xl bg-orange p-px cursor-pointer shadow-[0_10px_30px_-10px_rgba(255,107,0,0.3)] disabled:opacity-50"
                         >
-                          <div className="absolute inset-0 technical-grid opacity-[0.03]" />
-                          <item.icon className="text-orange mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
-                          <h4 className="text-xl font-display font-black uppercase mb-2 tracking-tight group-hover:text-orange transition-colors">{item.title}</h4>
-                          <p className="text-steel text-sm leading-relaxed font-sans">{item.desc}</p>
-                          <div className="mt-auto pt-8 flex items-center gap-2 text-[10px] font-mono text-orange tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
-                            Sélectionner <ArrowUpRight size={14} />
+                          <div className="bg-[#FF6B00] py-4 rounded-[11px] flex items-center justify-center gap-3 group-hover:bg-[#FF8C33] transition-all">
+                            <span className="font-display font-black text-xs uppercase tracking-[0.3em] text-white">
+                              {formStatus === 'sending' ? 'Transmission...' : 'Initialiser le Protocole'}
+                            </span>
+                            <Zap size={14} className={cn("text-white transition-transform", formStatus === 'sending' ? "animate-pulse" : "group-hover:scale-125")} />
                           </div>
                         </button>
-                      ))}
-                    </motion.div>
-                  )}
-
-                  {step === 2 && (
-                    <motion.div 
-                      key="step2"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="space-y-10"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className="space-y-4">
-                          <label className="font-mono text-[10px] uppercase text-steel tracking-[0.2em] opacity-50">Étage de Livraison</label>
-                          <input type="number" className="w-full bg-transparent border-b border-white/10 pb-4 focus:border-orange outline-none transition-all text-4xl font-bold text-orange" placeholder="0" />
-                        </div>
-                        <div className="space-y-4">
-                          <label className="font-mono text-[10px] uppercase text-steel tracking-[0.2em] opacity-50">Localisation (GE)</label>
-                          <input type="text" className="w-full bg-transparent border-b border-white/10 pb-4 focus:border-orange outline-none transition-all text-4xl font-bold text-off-white" placeholder="Genève" />
-                        </div>
                       </div>
-                      <div className="p-8 glass bg-white/[0.02] border-white/5 rounded-2xl">
-                        <div className="flex items-start gap-6 text-steel">
-                          <Activity size={24} className="text-orange shrink-0 animate-pulse" />
-                          <div>
-                            <p className="text-sm font-medium text-off-white mb-2 uppercase tracking-wide">Bureau d'études actif</p>
-                            <p className="text-xs leading-relaxed font-light">Nos experts analyseront la topographie et l'accessibilité via imagerie satellite après soumission.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {step === 3 && (
-                    <motion.div 
-                      key="step3"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="space-y-10"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className="space-y-4">
-                          <label className="font-mono text-[10px] uppercase text-steel tracking-[0.2em] opacity-50">Canal de Contact (Email)</label>
-                          <input type="email" className="w-full bg-transparent border-b border-white/10 pb-4 focus:border-orange outline-none transition-all text-xl font-medium" placeholder="votre@email.ch" />
-                        </div>
-                        <div className="space-y-4">
-                          <label className="font-mono text-[10px] uppercase text-steel tracking-[0.2em] opacity-50">Numéro de Téléphone</label>
-                          <input type="tel" className="w-full bg-transparent border-b border-white/10 pb-4 focus:border-orange outline-none transition-all text-xl font-medium" placeholder="+41 ..." />
-                        </div>
-                      </div>
-                      <motion.button 
-                        onClick={onClose}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="btn-tactile-orange w-full py-5 text-black font-display font-extrabold uppercase tracking-widest rounded-full text-[12px] antialiased cursor-pointer"
-                      >
-                        Générer le Devis Gratuit
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="mt-16 pt-8 border-t border-white/5 flex justify-between items-center">
-                {step > 1 ? (
-                  <button onClick={prevStep} className="flex items-center gap-3 text-[10px] font-mono text-steel hover:text-off-white transition-colors uppercase tracking-[0.2em] cursor-pointer">
-                    <ChevronRight className="rotate-180" size={16} /> Précédent
-                  </button>
-                ) : <div />}
-                
-                {step > 1 && step < totalSteps && (
-                  <button onClick={nextStep} className="flex items-center gap-3 text-[10px] font-mono text-orange hover:text-off-white transition-colors uppercase tracking-[0.2em] cursor-pointer">
-                    Suivant <ChevronRight size={16} />
-                  </button>
+                    </form>
+                  </div>
                 )}
-              </div>
+              </AnimatePresence>
             </div>
           </motion.div>
         </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
+    </motion.main>
   );
 };
 
-export default function App() {
-  const [isContactOpen, setIsContactOpen] = useState(false);
-  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [activeModal, setActiveModal] = useState<'mentions' | 'security' | null>(null);
-  const lenisRef = React.useRef<Lenis | null>(null);
 
+const ExpertiseCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: number }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 30 }} 
+    whileInView={{ opacity: 1, y: 0 }} 
+    viewport={{ once: true }} 
+    transition={{ duration: 0.8, delay }} 
+    className="group relative p-px rounded-[2.5rem] bg-gradient-to-b from-white/10 via-transparent to-transparent hover:from-orange/40 transition-all duration-700 shadow-2xl"
+  >
+    <div className="relative z-10 p-10 bg-[#0A0F14] rounded-[2.4rem] space-y-10 overflow-hidden h-full flex flex-col justify-between">
+      {/* Light Sweep Effect */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      
+      <div className="space-y-8">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[5deg] transition-all duration-700 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] group-hover:border-orange/30">
+          <Icon className="text-orange" size={36} strokeWidth={1.5} />
+        </div>
+        
+        <div className="space-y-4">
+          <h4 className="text-3xl font-display font-black uppercase tracking-tight text-off-white group-hover:text-orange transition-colors duration-500 leading-tight">
+            {title}
+          </h4>
+          <p className="text-base leading-relaxed text-steel font-medium opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+            {desc}
+          </p>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+const SectionHeader = ({ title, sub, mono }: { title: string, sub?: string, mono: string }) => (
+  <div className="space-y-6 mb-20 relative z-10">
+    <div className="flex items-center gap-4"><span className="w-12 h-[2px] bg-orange" /><span className="font-mono text-[11px] text-orange tracking-[0.5em] uppercase font-black">{mono}</span></div>
+    <h2 className="text-[clamp(2.2rem,6vw,4rem)] font-display font-black uppercase tracking-tighter leading-[0.9] text-off-white">{title}</h2>
+    {sub && <p className="text-steel max-w-2xl text-[clamp(1rem,2vw,1.2rem)] leading-relaxed font-medium">{sub}</p>}
+  </div>
+);
+
+const RotatingCinematicText = () => {
+  const [index, setIndex] = useState(0);
+  const words = ["Verticale", "Précise", "Elite", "Genève"];
+  
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-      infinite: false,
-    });
-    lenisRef.current = lenis;
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (activeModal) {
-      lenisRef.current?.stop();
-    } else {
-      lenisRef.current?.start();
-    }
-  }, [activeModal]);
-
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
-  const [headlineIndex, setHeadlineIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeadlineIndex((prev) => (prev + 1) % 4);
-    }, 3000);
+    const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 3000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-petrol">
-      <Nav onContactClick={() => setIsContactOpen(true)} />
-      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
-      <QuoteOnboardingModal isOpen={isQuoteOpen} onClose={() => setIsQuoteOpen(false)} />
-      <Lightbox src={selectedImage || ""} onClose={() => setSelectedImage(null)} />
-      {/* Visual Background */}
-      <div className="fixed inset-0 -z-10 bg-petrol" />
-      <div className="fixed inset-0 -z-10 technical-grid opacity-40 pointer-events-none" />
-      
-      {/* Scroll Progress Indicator */}
-      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange z-[60] origin-left" style={{ scaleX }} />
-
-      {/* --- HERO --- */}
-      <section className="relative min-h-screen flex items-center px-4 md:px-8 lg:px-12 overflow-hidden">
-        {/* Cinematic Background Layer */}
-        <div className="absolute inset-0 z-0">
-          <motion.div 
-            initial={{ scale: 1.1, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: 'url("/hero.png")' }}
-          />
-          {/* Subtle Premium Overlays - Tuned for the specific image brightness */}
-          <div className="absolute inset-0 bg-gradient-to-r from-petrol/80 via-petrol/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-petrol/60 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-black/10 backdrop-brightness-110" />
-          <div className="absolute inset-0 [background:radial-gradient(circle_at_center,transparent_40%,rgba(7,25,37,0.3)_100%)]" />
-        </div>
-
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-12 gap-8 lg:gap-16 items-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="col-span-12 lg:col-span-8 space-y-10"
-          >
-            <div className="space-y-6">
-              <div className="h-[120px] md:h-[200px] flex items-center relative">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={headlineIndex}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-x-0"
-                  >
-                    <h1 className="text-[clamp(2.5rem,10vw,5.5rem)] leading-[0.95] font-bold tracking-tighter uppercase font-display drop-shadow-2xl will-change-transform">
-                      {[
-                         <span key="0">LOCATION<br/><span className="text-orange italic">MONTE-MEUBLES</span>.</span>,
-                         <span key="1">PRÉCISION<br/><span className="text-orange italic">MONTE CHARGE</span>.</span>,
-                         <span key="2">SÉCURITÉ<br/><span className="text-orange italic">GARANTIE</span>.</span>,
-                         <span key="3">EXPERTISE<br/><span className="text-orange italic">GENEVOISE</span>.</span>
-                      ][headlineIndex]}
-                    </h1>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              <p className="text-base sm:text-lg md:text-xl leading-relaxed text-off-white/90 max-w-[540px] font-light drop-shadow-lg">
-                Le spécialiste du monte-meubles à Genève. Solutions de levage haute performance pour vos déménagements et manutentions industrielles complexes.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <motion.button 
-                onClick={() => setIsQuoteOpen(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-tactile-orange w-full sm:w-auto px-8 py-4 text-black font-display font-extrabold text-[12px] uppercase tracking-widest rounded-full antialiased cursor-pointer"
-              >
-                <div className="flex items-center justify-center gap-3">
-                  Lancer le Projet
-                  <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-500" />
-                </div>
-              </motion.button>
-              
-              <motion.a 
-                href="https://batimove.ch" 
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-tactile-black flex items-center gap-4 px-8 py-4 border border-white/5 rounded-full opacity-90 backdrop-blur-3xl group cursor-pointer hover:opacity-100 transition-all duration-500"
-              >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-orange/20 blur-lg rounded-full group-hover:scale-150 transition-transform duration-700 opacity-0 group-hover:opacity-100" />
-                  <Truck size={20} className="text-orange relative z-10 group-hover:rotate-[-8deg] transition-transform duration-500 text-shadow-glow" />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-orange animate-pulse shadow-[0_0_15px_rgba(255,107,0,1)] relative z-10" />
-                </div>
-                <div className="flex flex-col items-start leading-none gap-1 antialiased">
-                  <span className="font-mono text-[7px] uppercase tracking-[0.4em] text-steel/40 font-medium">Partenaire Officiel</span>
-                  <span className="font-display font-extrabold text-[12px] uppercase tracking-wide text-off-white group-hover:text-orange transition-colors duration-500">BatiMove</span>
-                </div>
-              </motion.a>
-            </div>
-
-            <div className="pt-10 border-t border-white/10 flex flex-wrap gap-10 font-mono text-[10px] text-steel uppercase tracking-[0.2em]">
-              <div className="flex items-center gap-3"><Shield size={14} className="text-orange" /> Assurance Intégrale</div>
-              <div className="flex items-center gap-3"><Clock size={14} className="text-orange" /> Services 24/7</div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Dynamic Scan Line Integration */}
-        <div className="absolute inset-0 bg-gradient-to-t from-orange/10 to-transparent h-[1px] w-full translate-y-full animate-[scan_6s_linear_infinite] opacity-20 z-20 pointer-events-none" />
-      </section>
-
-      {/* --- WORK CAROUSEL (CENTIPEDE MODE) --- */}
-      <div className="py-20 bg-petrol overflow-hidden border-t border-b border-white/5 relative">
-        <div className="absolute inset-0 technical-grid opacity-[0.02] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-4 md:px-8 mb-12 flex justify-between items-end">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 bg-orange rounded-full animate-pulse" />
-              <span className="font-mono text-[9px] uppercase text-orange tracking-[0.3em]">Log de Mission</span>
-            </div>
-            <h3 className="text-xl md:text-3xl font-display font-black uppercase tracking-tighter">Interventions Récentes</h3>
-          </div>
-        </div>
-
-        <div className="flex group/carousel">
-          <div 
-            className="flex gap-6 px-3 animate-[scroll_80s_linear_infinite] group-hover/carousel:[animation-play-state:paused]"
-          >
-            {[1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, 21, 22, 23, 24, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-              <motion.div 
-                key={`work-${num}`}
-                whileHover={{ y: -15, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                onClick={() => setSelectedImage(`/assets/work/${num}.jpeg`)}
-                className="relative w-[320px] h-[220px] flex-shrink-0 border border-white/5 overflow-hidden group/card cursor-zoom-in"
-              >
-                <img 
-                  src={`/assets/work/${num}.jpeg`} 
-                  alt={`Mission ${num}`} 
-                  className="w-full h-full object-cover transition-all duration-700"
-                />
-                <div className="absolute top-4 left-4 w-3 h-3 border-t-2 border-l-2 border-orange/60 opacity-0 group-hover/card:opacity-100 transition-all duration-500" />
-                <div className="absolute bottom-4 right-4 w-3 h-3 border-b-2 border-r-2 border-orange/60 opacity-0 group-hover/card:opacity-100 transition-all duration-500" />
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-petrol/80 via-transparent to-transparent opacity-60" />
-              </motion.div>
-            ))}
-            {/* Extended duplicate set for seamless loop */}
-            {[1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, 21, 22, 23, 24, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-              <motion.div 
-                key={`work-dup-${num}`}
-                whileHover={{ y: -15, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                onClick={() => setSelectedImage(`/assets/work/${num}.jpeg`)}
-                className="relative w-[320px] h-[220px] flex-shrink-0 border border-white/5 overflow-hidden group/card cursor-zoom-in"
-              >
-                <img 
-                  src={`/assets/work/${num}.jpeg`} 
-                  alt={`Mission ${num}`} 
-                  className="w-full h-full object-cover transition-all duration-700"
-                />
-                <div className="absolute top-4 left-4 w-3 h-3 border-t-2 border-l-2 border-orange/60 opacity-0 group-hover/card:opacity-100 transition-all duration-500" />
-                <div className="absolute bottom-4 right-4 w-3 h-3 border-b-2 border-r-2 border-orange/60 opacity-0 group-hover/card:opacity-100 transition-all duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-petrol/80 via-transparent to-transparent opacity-60" />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* --- MANIFESTO --- */}
-      <motion.section 
-        id="expertise" 
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="py-16 lg:py-32 px-4 md:px-8 lg:px-12 relative flex items-center"
-      >
-        <div className="max-w-7xl mx-auto w-full">
-          <SectionHeader 
-            title="Savoir-Faire Suisse" 
-            sub="Une excellence opérationnelle sans compromis. Nous déployons des solutions de levage de précision adaptées aux environnements les plus exigeants de Genève." 
-            mono="Excellence"
-          />
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ExpertiseCard 
-              icon={Settings}
-              title="Logistique Haute-Performance"
-              desc="Optimisation des flux de levage pour minimiser les interruptions de service et maximiser l'efficacité de vos transferts."
-              delay={0.1}
-            />
-            <ExpertiseCard 
-              icon={ShieldCheck}
-              title="Sécurité Certifiée"
-              desc="Conformité totale aux normes SUVA et européennes. Chaque intervention est encadrée par un expert certifié."
-              delay={0.2}
-            />
-            <ExpertiseCard 
-              icon={Clock}
-              title="Réactivité Absolue"
-              desc="Service 24/7 pour les urgences. Installation rapide et mise en service immédiate sur tout le bassin genevois."
-              delay={0.3}
-            />
-          </div>
-
-          {/* Integrated Minimalist CTA */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-16 pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 group/cta"
-          >
-            <div className="space-y-2 text-center md:text-left">
-              <h5 className="text-xl font-display font-black uppercase tracking-tight text-off-white">
-                Prêt à élever vos projets ?
-              </h5>
-              <p className="font-mono text-[10px] text-steel/60 uppercase tracking-widest">
-                Expertise technique gratuite sous <span className="text-orange">24h</span>
-              </p>
-            </div>
-            
-            <motion.button 
-              onClick={() => setIsQuoteOpen(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-tactile-orange relative group/btn overflow-hidden rounded-full cursor-pointer"
+    <div className="space-y-4">
+      <h1 className="text-[clamp(2.5rem,10vw,8rem)] font-display font-black uppercase tracking-tighter leading-[0.8] text-off-white flex flex-col items-center">
+        <motion.span initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="block">Levage</motion.span>
+        <div className="relative h-[1.1em] w-full flex items-center justify-center overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.span 
+              key={index}
+              initial={{ y: '100%', opacity: 0, rotateX: -90 }}
+              animate={{ y: 0, opacity: 1, rotateX: 0 }}
+              exit={{ y: '-100%', opacity: 0, rotateX: 90 }}
+              transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+              className={cn("block italic text-orange whitespace-nowrap", index % 2 === 0 ? "font-serif italic" : "font-display")}
             >
-            <div className="relative px-10 py-4 text-black font-display font-extrabold text-[12px] uppercase tracking-widest flex items-center gap-3 transition-colors antialiased">
-                Lancer l'Analyse
-                <ArrowUpRight size={18} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-              </div>
-            </motion.button>
-          </motion.div>
+              {words[index]}.
+            </motion.span>
+          </AnimatePresence>
         </div>
-      </motion.section>
+      </h1>
+    </div>
+  );
+};
 
-      <motion.section 
-        id="synergy" 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className="py-16 lg:py-32 px-4 md:px-8 lg:px-12 relative bg-petrol border-t border-white/5 overflow-hidden"
-      >
-        {/* Engineering Grid Background */}
-        <div className="absolute inset-0 technical-grid opacity-[0.03] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <SectionHeader 
-            title="L'Écosystème Vertical" 
-            sub="Une infrastructure technologique unifiée pour maîtriser chaque étape de la chaîne logistique, du levage à la distribution finale." 
-            mono="Contrôle Mission"
-          />
-          
-          <div className="space-y-12">
-            {/* The Cinematic 3-Panel Visual */}
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="relative w-full max-w-5xl mx-auto bg-white/[0.02] border border-white/10 rounded-[2.5rem] overflow-hidden group shadow-2xl h-auto will-change-transform"
-            >
-              <img 
-                src="/logistic.png" 
-                alt="Logistics Ecosystem" 
-                className="w-full h-auto block transition-transform duration-[3s] ease-out group-hover:scale-105 will-change-transform"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-petrol/60 via-transparent to-transparent opacity-60" />
-            </motion.div>
+export default function App() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'contact'>('home');
+  const [activeModal, setActiveModal] = useState<'mentions' | 'security' | null>(null);
+  const [videoOpacity, setVideoOpacity] = useState(0.5);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
-            {/* Synergy Content Deck */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="p-8 glass-card border-white/5 rounded-3xl space-y-4 hover:border-orange/20 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center border border-orange/20">
-                  <ArrowUpRight className="text-orange" size={20} />
-                </div>
-                <h4 className="text-lg font-display font-black uppercase tracking-tight text-off-white">Précision Verticale</h4>
-                <p className="text-steel text-[13px] leading-relaxed font-sans">
-                  Maîtrise absolue du levage en environnement urbain dense, garantissant une extraction sécurisée des charges les plus complexes.
-                </p>
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.6;
+    }
+  }, [currentPage]);
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return;
+    const { currentTime, duration } = videoRef.current;
+    if (duration > 0) {
+      // Fade out in the last 0.8s
+      if (currentTime > duration - 0.8) {
+        setVideoOpacity(Math.max(0, (duration - currentTime) * 0.5));
+      } else if (currentTime < 0.8) {
+        // Fade in during the first 0.8s
+        setVideoOpacity(Math.min(0.5, currentTime * 0.5));
+      } else {
+        setVideoOpacity(0.5);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      setCurrentPage(path === '/contact' ? 'contact' : 'home');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (page: 'home' | 'contact') => {
+    const url = page === 'home' ? '/' : '/contact';
+    window.history.pushState({}, '', url);
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="bg-petrol text-off-white min-h-screen selection:bg-orange selection:text-black">
+      <Nav currentPage={currentPage} navigateTo={navigateTo} />
+      <AnimatePresence mode="wait">
+        {currentPage === 'home' ? (
+          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-screen relative flex items-center justify-center overflow-hidden">
+              <AuroraBackground />
+              <div className="absolute inset-0 pointer-events-none z-10">
+                <div className="absolute inset-0 bg-gradient-to-b from-petrol/60 via-transparent to-petrol" />
+                <div className="absolute inset-0 technical-grid opacity-[0.03]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(7,25,37,0.4)_100%)]" />
               </div>
-
-              <div className="p-8 glass-card border-white/5 rounded-3xl space-y-4 hover:border-white/20 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                  <Settings className="text-off-white" size={20} />
-                </div>
-                <h4 className="text-lg font-display font-black uppercase tracking-tight text-off-white">Logistique Intégrée</h4>
-                <p className="text-steel text-[13px] leading-relaxed font-sans">
-                  Coordination stratégique des flux. Nous transformons la complexidade técnica em fluidez operacional imediata.
-                </p>
-              </div>
-
-              <div className="p-8 bg-orange/5 border border-orange/10 rounded-3xl space-y-6 group">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-mono text-[9px] text-orange tracking-widest mb-1 uppercase">Partenaire Distribution</div>
-                    <div className="text-2xl font-display font-black uppercase tracking-tighter text-off-white">BatiMove.ch</div>
-                  </div>
-                  <Truck className="text-orange opacity-40 group-hover:opacity-100 transition-opacity" size={24} />
-                </div>
-                <p className="text-[12px] text-steel/80 leading-relaxed font-sans">
-                  Le pilier de la distribution finale. BatiMove assure le transport sécurisé et la gestion de flotte sur tout le territoire.
-                </p>
-                <motion.a 
-                  href="https://batimove.ch"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-tactile-orange w-full py-4 text-black font-display font-extrabold uppercase tracking-widest rounded-full text-[10px] flex items-center justify-center gap-3 cursor-pointer antialiased"
+              <motion.div initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 2 }} className="absolute inset-0">
+                <video 
+                  ref={videoRef}
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  onTimeUpdate={handleTimeUpdate}
+                  className="w-full h-full object-cover brightness-[0.9] contrast-[1.2] saturate-[1.5] transition-opacity duration-700"
+                  style={{ opacity: videoOpacity }}
                 >
-                  Accéder à BatiMove
-                  <ArrowUpRight size={16} />
-                </motion.a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* --- PROTOCOLS --- */}
-      <motion.section 
-        id="protocoles" 
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="py-16 lg:py-32 px-4 md:px-8 lg:px-12 bg-petrol border-b border-white/5"
-      >
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader 
-            title="Protocole de Levage" 
-            sub="De l'étude de site à la réalisation, chaque étape est validée selon les normes de sécurité les plus strictes." 
-            mono="Protocole"
-          />
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { title: 'Audit', desc: 'Analyse rigoureuse de la configuration terrain et validation des points d\'appui.' },
-              { title: 'Planification', desc: 'Conception CAO 3D des trajectoires et calcul des charges de rupture.' },
-              { title: 'Installation', desc: 'Déploiement des unités et sécurisation périmétrale par nos experts.' },
-              { title: 'Exécution', desc: 'Manoeuvre de levage assistée par télémétrie laser et finalisation.' }
-            ].map((step, i) => (
-              <ProtocolCard 
-                key={step.title}
-                i={i}
-                phase={`Phase 0${i+1}`}
-                title={step.title}
-                desc={step.desc}
-              />
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* --- FOOTER --- */}
-      <footer className="py-12 md:py-16 px-4 md:px-8 lg:px-12 bg-petrol border-t border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 technical-grid opacity-[0.02] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto relative z-10 px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-12 mb-12">
-            <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <MCLogo size={56} className="group-hover:rotate-[360deg] transition-transform duration-1000" />
-              <span className="font-display font-black uppercase tracking-tighter text-2xl">Monte Charge</span>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-              {['Expertise', 'Synergy', 'Protocoles', 'Contact'].map(link => (
-                link === 'Contact' ? (
-                  <button 
-                    key={link} 
-                    onClick={() => setIsContactOpen(true)}
-                    className="text-[10px] font-mono text-steel uppercase tracking-[0.3em] hover:text-orange transition-colors cursor-pointer"
+                  <source src="/Photorealistic_Truck_Loop_Animation.mp4" type="video/mp4" />
+                </video>
+              </motion.div>
+              
+              <div className="container mx-auto px-6 relative z-20 text-center">
+                <RotatingCinematicText />
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="text-steel max-w-2xl mx-auto text-lg md:text-xl mb-12 font-medium opacity-80 leading-relaxed mt-8">
+                  Expertise suisse certifiée SUVA pour vos transferts complexes e infrastructures sensibles à travers tout le bassin genevois.
+                </motion.p>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }} className="flex flex-col sm:flex-row items-center justify-center gap-8">
+                  {/* Primary Button: Démarrer Mission */}
+                  <a 
+                    href="#expertise" 
+                    className="group relative flex items-center gap-6 bg-gradient-to-r from-orange to-[#FF8C33] p-1 rounded-full hover:scale-105 transition-all duration-500 shadow-[0_20px_40px_-15px_rgba(255,107,0,0.4)] cursor-pointer"
                   >
-                    {link}
-                  </button>
-                ) : (
-                  <a key={link} href={`#${link.toLowerCase()}`} className="text-[10px] font-mono text-steel uppercase tracking-[0.3em] hover:text-orange transition-colors cursor-pointer">
-                    {link}
+                    <div className="pl-10 pr-6 py-4">
+                      <span className="font-display font-black text-xs uppercase tracking-[0.3em] text-white">Démarrer Mission</span>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:bg-white/40 transition-all duration-500 shadow-inner">
+                      <ArrowDown size={18} className="text-white group-hover:translate-y-1 transition-transform" />
+                    </div>
                   </a>
-                )
-              ))}
-            </div>
-          </div>
 
-           <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-[9px] font-mono text-steel/30 uppercase tracking-[0.2em]">
-              © 2026 Monte Charge Genève. Excellence Logistique Verticale.
-            </div>
+                  {/* Secondary Button: Contact */}
+                  <button 
+                    onClick={() => navigateTo('contact')} 
+                    className="group relative flex items-center gap-6 bg-white/[0.03] backdrop-blur-xl border border-white/10 p-1 rounded-full hover:border-orange/40 hover:bg-white/[0.06] transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,107,0,0.1)] cursor-pointer"
+                  >
+                    <div className="pl-10 pr-6 py-4">
+                      <span className="font-display font-black text-xs uppercase tracking-[0.3em] text-steel group-hover:text-off-white transition-colors">Mission Control</span>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-orange/50 group-hover:bg-orange/10 transition-all duration-500">
+                      <Phone size={18} className="text-steel group-hover:text-orange transition-colors" />
+                    </div>
+                  </button>
+                </motion.div>
+              </div>
+              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-30">
+                <span className="font-mono text-[9px] uppercase tracking-[0.5em] rotate-90 mb-4">Scroll</span>
+                <div className="w-[1px] h-20 bg-gradient-to-b from-orange to-transparent" />
+              </div>
+            </motion.section>
 
-            <div className="text-[9px] font-mono text-steel/30 uppercase tracking-[0.2em]">
-              made with ❤️ by <a href="https://joshsegatt.com" target="_blank" rel="noopener noreferrer" className="text-orange/60 hover:text-orange transition-colors">joshsegatt</a>
-            </div>
-            
-            <div className="flex gap-8 text-[9px] font-mono text-steel/30 uppercase tracking-[0.2em]">
-              <button 
-                onClick={() => setActiveModal('mentions')} 
-                className="hover:text-orange transition-colors cursor-pointer bg-transparent border-none p-0"
-              >
-                Mentions Légales
-              </button>
-              <button 
-                onClick={() => setActiveModal('security')} 
-                className="hover:text-orange transition-colors cursor-pointer bg-transparent border-none p-0"
-              >
-                Standard Sécurité
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
+            <motion.section id="expertise" initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1 }} className="py-12 lg:py-24 px-4 md:px-8 lg:px-12 relative flex items-center">
+              <div className="max-w-6xl mx-auto w-full">
+                <SectionHeader title="Expertise Genevoise" sub="Leader du levage vertical à Genève. Nous transformons les défis logistiques complexes en manœuvres de précision certifiées SUVA." mono="Standard d'Excellence" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+                  <ExpertiseCard icon={Settings} title="Précision Laser" desc="Manutention au millimètre pour vos biens les plus précieux. Une maîtrise technique absolue du monte-meubles." delay={0.1} />
+                  <ExpertiseCard icon={ShieldCheck} title="Sécurité SUVA" desc="Conformité totale aux normes suisses de sécurité. Protection intégrale des infrastructures et des tiers." delay={0.2} />
+                  <ExpertiseCard icon={Clock} title="Disponibilité 24/7" desc="Réactivité stratégique pour les urgences et planification sur-mesure pour vos projets industriels." delay={0.3} />
+                </div>
+              </div>
+            </motion.section>
 
-      {/* Legal & Security Overlays */}
+            <motion.section id="synergy" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.2 }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 relative bg-transparent border-t border-white/5 overflow-hidden">
+              <div className="absolute inset-0 technical-grid opacity-10 pointer-events-none" />
+              <div className="max-w-7xl mx-auto relative z-10">
+                <SectionHeader title="L'Écosystème BatiMove" sub="La synergie parfaite entre le levage vertical e la logistique de transport for une maîtrise totale de votre flux." mono="Synergie Stratégique" />
+                <div className="grid grid-cols-12 gap-8 lg:gap-12 items-stretch">
+                  <div className="col-span-12 lg:col-span-8 relative aspect-[16/9] bg-black/60 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl group">
+                    <img src="/logistic.png" alt="Logistique Verticale Genève" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[3s]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-8 left-8 flex items-center gap-4 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl">
+                      <div className="w-2 h-2 rounded-full bg-orange animate-pulse" />
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-off-white">Flux Opérationnel Actif</span>
+                    </div>
+                  </div>
+                  <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <motion.div 
+                      whileHover={{ x: 10 }}
+                      className="flex-1 p-8 bg-white/[0.01] backdrop-blur-3xl border border-white/5 rounded-[2rem] space-y-4 hover:border-orange/20 transition-all group relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity"><Activity size={64} /></div>
+                      <h4 className="text-2xl font-display font-black uppercase text-off-white group-hover:text-orange transition-colors">Maîtrise</h4>
+                      <p className="text-steel text-sm leading-relaxed">Une coordination sans faille for minimiser les temps d'arrêt e optimiser la sécurité de chaque transfert.</p>
+                      <div className="pt-4"><span className="text-[10px] font-mono text-orange uppercase tracking-widest border-b border-orange/30 pb-1 cursor-pointer hover:border-orange transition-all">Consulter les Protocoles</span></div>
+                    </motion.div>
+                    <div className="p-8 bg-gradient-to-br from-orange/[0.07] to-transparent backdrop-blur-3xl border border-orange/10 rounded-[2.5rem] space-y-8 group relative overflow-hidden">
+                      <div className="space-y-1">
+                        <span className="font-mono text-[9px] text-orange tracking-[0.5em] uppercase font-black">Partenaire Elite</span>
+                        <h4 className="text-5xl font-display font-black uppercase text-off-white tracking-tighter">BatiMove</h4>
+                      </div>
+                      <a href="https://batimove.ch" target="_blank" rel="noopener noreferrer" className="btn-luxury-orange group w-full text-white cursor-pointer py-4 shadow-[0_20px_40px_-15px_rgba(255,83,4,0.3)] overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        <span className="font-display font-black text-[10px] uppercase tracking-[0.2em] relative z-10">Explorez BatiMove</span>
+                        <div className="btn-luxury-icon-wrapper relative z-10"><ArrowUpRight size={14} /></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+
+            <motion.section id="protocoles" initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }} className="py-24 lg:py-32 px-6 md:px-12 lg:px-20 bg-transparent border-b border-white/5 relative">
+              <div className="max-w-7xl mx-auto">
+                <SectionHeader title="Protocole Haute-Sûreté" sub="Une méthodologie rigoureuse, du site-survey à la manœuvre finale, for une sécurité sans compromis." mono="Sécurité Certifiée" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    { title: 'Site Survey', desc: 'Audit technique de terrain e validation de la charge utile.', icon: Search },
+                    { title: 'Plan de Levage', desc: 'Conception CAO des trajectoires e calcul des forces de vent.', icon: Compass },
+                    { title: 'Setup SUVA', desc: 'Installation certifiée e sécurisation du périmètre public.', icon: ShieldCheck },
+                    { title: 'Manœuvre', desc: 'Exécution de précision assistée par télémétrie laser.', icon: Zap }
+                  ].map((step, i) => (
+                    <motion.div 
+                      key={step.title} 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }} 
+                      className="group relative p-px rounded-[2.5rem] bg-gradient-to-b from-white/10 to-transparent hover:from-orange/30 transition-all duration-700"
+                    >
+                      <div className="relative z-10 p-10 flex flex-col justify-between rounded-[2.4rem] bg-[#0A0F14] backdrop-blur-3xl overflow-hidden shadow-2xl h-full border border-white/5">
+                        {/* Interactive Grid Background */}
+                        <div className="absolute inset-0 technical-grid opacity-[0.03] group-hover:opacity-[0.07] transition-opacity" />
+                        
+                        <div className="relative z-10 space-y-8">
+                          <div className="flex justify-between items-start">
+                            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:border-orange/30 group-hover:bg-orange/5 transition-all duration-500 relative">
+                              <step.icon size={24} className="text-orange relative z-10" />
+                              <div className="absolute inset-0 bg-orange/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity" />
+                            </div>
+                            
+                            {/* Rotating Tech Badge */}
+                            <motion.div 
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                              className="w-12 h-12 relative opacity-20 group-hover:opacity-100 transition-opacity"
+                            >
+                              <svg viewBox="0 0 100 100" className="w-full h-full">
+                                <path id={`circlePath-${i}`} d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                                <text className="text-[10px] font-mono fill-orange uppercase tracking-[0.2em]">
+                                  <textPath xlinkHref={`#circlePath-${i}`}>PRECISION • GENÈVE • </textPath>
+                                </text>
+                              </svg>
+                            </motion.div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h4 className="text-2xl font-display font-black uppercase text-off-white group-hover:text-orange transition-colors duration-500 tracking-tighter">
+                              {step.title}
+                            </h4>
+                            <p className="text-[13px] text-steel leading-relaxed font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-500">
+                              {step.desc}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Bottom Light Bar */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-orange/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.section>
+
+            <footer className="py-12 border-t border-white/5 bg-petrol/50 backdrop-blur-md">
+              <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-mono uppercase tracking-widest text-steel/60">
+                <div className="order-3 md:order-1 flex items-center gap-4">
+                  <span>© 2024 Monte Charge</span>
+                  <span className="hidden md:block w-1 h-1 rounded-full bg-white/10" />
+                  <a href="#mentions" onClick={(e) => { e.preventDefault(); setActiveModal('mentions'); }} className="hover:text-orange transition-colors">Mentions Légales</a>
+                </div>
+                
+                <div className="order-1 md:order-2">
+                  <a 
+                    href="https://joshsegatt.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 hover:text-off-white transition-all group"
+                  >
+                    <span>Made with</span>
+                    <span className="text-orange animate-pulse">❤️</span>
+                    <span>by</span>
+                    <span className="text-off-white font-black group-hover:text-orange transition-colors">joshsegatt</span>
+                  </a>
+                </div>
+
+                <div className="order-2 md:order-3 flex items-center gap-6">
+                  {['Expertise', 'Synergy', 'Protocoles'].map(item => (
+                    <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-orange transition-colors">{item}</a>
+                  ))}
+                  <button onClick={() => navigateTo('contact')} className="text-orange font-black hover:scale-110 transition-transform">Contact</button>
+                </div>
+              </div>
+            </footer>
+          </motion.div>
+        ) : (
+          <ContactPage key="contact" navigateTo={navigateTo} />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {activeModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 lg:p-12"
-          >
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveModal(null)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
-            />
-
-            {/* Modal Container */}
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-4xl max-h-[85vh] bg-[#0A0F14] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col"
-            >
-              {/* Header */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+            <motion.div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer" />
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }} className="relative w-full max-w-4xl max-h-[85vh] bg-[#0A0F14] border border-white/10 rounded-[2.5rem] overflow-hidden flex flex-col">
               <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-orange/10 flex items-center justify-center border border-orange/20">
-                    {activeModal === 'mentions' ? <FileText className="text-orange" size={24} /> : <ShieldCheck className="text-orange" size={24} />}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-display font-black uppercase tracking-tight text-off-white">
-                      {activeModal === 'mentions' ? 'Mentions Légales' : 'Standard Sécurité'}
-                    </h2>
-                    <p className="text-xs font-mono text-steel/60 tracking-widest uppercase">Protocole : Conformité_v1.0</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setActiveModal(null)}
-                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group cursor-pointer"
-                >
-                  <X className="text-steel group-hover:text-off-white" size={20} />
-                </button>
+                <h2 className="text-4xl font-display font-black uppercase text-off-white">{activeModal === 'mentions' ? 'Mentions Légales' : 'Standard Sécurité'}</h2>
+                <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer"><X size={20} /></button>
               </div>
-
-              {/* Content Area */}
-              <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-12">
-                {activeModal === 'mentions' ? (
-                  <div className="space-y-10">
-                    <section className="space-y-4">
-                      <h3 className="text-sm font-mono text-orange tracking-widest uppercase">Éditeur du Site</h3>
-                      <div className="space-y-2 text-steel antialiased">
-                        <p className="text-off-white font-bold">BATIMOVE Sàrl</p>
-                        <p>Rue De-MONTHOUX 64</p>
-                        <p>c/o Fiduciaire Fidulex Sàrl</p>
-                        <p>1201 Genève, Suisse</p>
-                        <p className="pt-2 font-mono">UID : CHE-143.091.230</p>
-                      </div>
-                    </section>
-                    
-                    <section className="space-y-4">
-                      <h3 className="text-sm font-mono text-orange tracking-widest uppercase">Hébergement</h3>
-                      <div className="space-y-2 text-steel">
-                        <p className="text-off-white font-bold">Vercel Inc.</p>
-                        <p>440 N Barranca Ave #4133</p>
-                        <p>Covina, CA 91723</p>
-                        <p>États-Unis</p>
-                      </div>
-                    </section>
-
-                    <section className="space-y-4">
-                      <h3 className="text-sm font-mono text-orange tracking-widest uppercase">Propriété Intellectuelle</h3>
-                      <p className="text-steel leading-relaxed text-[13px]">
-                        L'ensemble de ce site relève de la législation suisse et internationale sur le droit d'auteur et la propriété intellectuelle. Tous droits de reproduction réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.
-                      </p>
-                    </section>
-                  </div>
-                ) : (
-                  <div className="space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-8 border border-white/5 rounded-3xl bg-white/[0.01] space-y-4">
-                        <Lock className="text-orange" size={24} />
-                        <h4 className="text-off-white font-bold uppercase tracking-tight">Intégrité des Données</h4>
-                        <p className="text-xs text-steel leading-relaxed">
-                          Chaque mission est documentée par un système de logs cryptés AES-256. Vos données opérationnelles restent confidentielles et souveraines sur des serveurs suisses hautement sécurisés.
-                        </p>
-                      </div>
-                      <div className="p-8 border border-white/5 rounded-3xl bg-white/[0.01] space-y-4">
-                        <ShieldCheck className="text-orange" size={24} />
-                        <h4 className="text-off-white font-bold uppercase tracking-tight">Normes Suisses</h4>
-                        <p className="text-xs text-steel leading-relaxed">
-                          Conformité totale avec les normes de sécurité du Canton de Genève. Assurance Responsabilité Civile Premium systématique pour chaque levage vertical critique.
-                        </p>
-                      </div>
-                    </div>
-
-                    <section className="space-y-4">
-                      <h3 className="text-sm font-mono text-orange tracking-widest uppercase">Protocoles d'Urgence</h3>
-                      <p className="text-steel leading-relaxed text-[13px]">
-                        Notre infrastructure intègre une détection automatique d'anomalies. En cas de déviation des paramètres de sécurité initiaux, le système s'isole immédiatement pour protéger les infrastructures et les équipes au sol.
-                      </p>
-                    </section>
-                  </div>
-                )}
+              <div className="flex-1 overflow-y-auto p-8 space-y-12">
+                <p className="text-steel leading-relaxed">{activeModal === 'mentions' ? 'BATIMOVE Sàrl, Rue De-MONTHOUX 64, 1201 Genève. UID: CHE-143.091.230' : 'Protocoles certifiés SUVA et standards de sécurité Genève.'}</p>
               </div>
-
-              {/* Footer */}
-              <div className="p-6 border-t border-white/5 bg-white/[0.01] flex justify-center">
-                <p className="text-[9px] font-mono text-steel/20 uppercase tracking-[0.4em]">Monte Charge Genève • Précis. Sécurisé. Suisse.</p>
-              </div>
+              <div className="p-6 border-t border-white/5 text-center"><p className="text-[9px] font-mono text-steel/20 uppercase tracking-[0.4em]">Monte Charge Genève • Précis. Sécurisé. Suisse.</p></div>
             </motion.div>
           </motion.div>
         )}
